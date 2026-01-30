@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Resources - GTU CSE Portal</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@400;700&display=swap"
+        rel="stylesheet">
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</head>
+
+<body>
+
+    <header class="header">
+        <div class="container">
+            <a href="index.html" class="logo">
+                <ion-icon name="school-outline"></ion-icon>
+                GTU CSE Portal
+            </a>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="index.html" class="nav-link">Home</a></li>
+                    <li><a href="admin.html" class="btn btn-primary"
+                            style="padding: 6px 16px; font-size: 0.9rem;">Admin</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container section">
+
+        <!-- Filter Controls (Only shown for general search) -->
+        <div id="filter-controls"
+            style="display: none; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+            <h1 id="page-title" style="font-size: 2rem;">All Materials</h1>
+            <div style="display: flex; gap: 10px;">
+                <select id="semFilter" class="form-control" onchange="runFilters()">
+                    <option value="">All Semesters</option>
+                    <option value="1">Sem 1</option>
+                    <option value="2">Sem 2</option>
+                    <option value="3">Sem 3</option>
+                    <option value="4">Sem 4</option>
+                    <option value="5">Sem 5</option>
+                    <option value="6">Sem 6</option>
+                    <option value="7">Sem 7</option>
+                    <option value="8">Sem 8</option>
+                </select>
+                <select id="typeFilter" class="form-control" onchange="runFilters()">
+                    <option value="">All Types</option>
+                    <option value="Notes">Notes</option>
+                    <option value="Books">Books</option>
+                    <option value="PYQ">PYQ</option>
+                    <option value="Syllabus">Syllabus</option>
+                    <option value="Lab Manual">Lab Manual</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Dynamic Content Area -->
+        <div id="dynamic-content"></div>
+
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-links">
+                <a href="#">About GTU</a>
+                <a href="#">Exam Time Table</a>
+                <a href="#">Circulars</a>
+            </div>
+            <p>&copy; 2026 GTU CSE Portal. Official Curriculum Resources.</p>
+        </div>
+    </footer>
+
+    <script src="js/data.js"></script>
+    <script src="js/theme.js"></script>
+    <script>
+        const contentDiv = document.getElementById('dynamic-content');
+        const filterControls = document.getElementById('filter-controls');
+
+        // Parse URL
+        const params = new URLSearchParams(window.location.search);
+        const sem = params.get('sem');
+        const subject = params.get('subject');
+        const type = params.get('type');
+        const q = params.get('q');
+
+        // Router Logic
+        if (subject) {
+            renderSubjectPage(subject);
+        } else if (sem) {
+            renderSemesterDashboard(sem);
+        } else {
+            // Default List/Search Mode
+            filterControls.style.display = 'flex';
+            if (sem) document.getElementById('semFilter').value = sem; // Sync if present
+            if (type) document.getElementById('typeFilter').value = type;
+            runFilters(); // Initial render
+        }
+
+        // --- View: Semester Dashboard ---
+        function renderSemesterDashboard(semId) {
+            const materials = Store.getBySemester(semId);
+
+            // Extract Subjects
+            const subjectMap = new Map();
+            materials.forEach(m => {
+                if (!subjectMap.has(m.subject)) {
+                    subjectMap.set(m.subject, {
+                        name: m.subject,
+                        code: m.subjectCode || 'N/A',
+                        count: 0
+                    });
+                }
+                subjectMap.get(m.subject).count++;
+            });
+            const subjects = Array.from(subjectMap.values());
+
+            contentDiv.innerHTML = `
+                <div style="text-align:center; margin-bottom:40px;">
+                    <h1 style="font-size:2.5rem; margin-bottom:10px;">Semester ${semId} Dashboard</h1>
+                    <p style="color:var(--text-muted);">Computer Engineering • Curriculum Overview</p>
+                </div>
+
+                <div style="background: white; padding: 30px; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); margin-bottom: 40px;">
+                    <h3 style="margin-bottom: 20px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px;">Subject Curriculum</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+                        ${subjects.length > 0 ? subjects.map(s => `
+                            <div onclick="window.location.href='material.html?subject=${encodeURIComponent(s.name)}'" 
+                                 style="cursor:pointer; padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--border-color); background: #f8fafc; transition: all 0.2s;" class="subject-card">
+                                <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:10px;">
+                                    <span class="badge" style="background:var(--primary-color); color:white;">${s.code}</span>
+                                    <ion-icon name="arrow-forward-circle-outline" style="font-size:1.5rem; color:var(--primary-color)"></ion-icon>
+                                </div>
+                                <h4 style="margin-bottom:5px; color:var(--primary-color);">${s.name}</h4>
+                                <p style="font-size:0.85rem; color:var(--text-muted);">${s.count} Resources Available</p>
+                            </div>
+                        `).join('') : '<p>No subjects found for this semester.</p>'}
+                    </div>
+                </div>
+            `;
+
+            // Add hover effect via JS/Inline to avoid cluttering CSS
+            document.querySelectorAll('.subject-card').forEach(c => {
+                c.addEventListener('mouseenter', () => c.style.borderColor = 'var(--secondary-color)');
+                c.addEventListener('mouseleave', () => c.style.borderColor = 'var(--border-color)');
+            });
+        }
+
+        // --- View: Subject Page ---
+        function renderSubjectPage(subName) {
+            const materials = Store.getAll().filter(m => m.subject === subName);
+            const info = materials[0] || { subject: subName, subjectCode: 'Unknown', semester: '?' };
+
+            contentDiv.innerHTML = `
+                <div style="margin-bottom: 30px;">
+                    <a href="material.html?sem=${info.semester}" style="color: var(--primary-color); font-weight: 500; font-size: 0.9rem;">
+                        <ion-icon name="arrow-back-outline" style="vertical-align:middle;"></ion-icon> Back to Semester ${info.semester}
+                    </a>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: end; margin-bottom: 40px; flex-wrap: wrap;">
+                    <div>
+                        <span class="badge badge-new" style="margin-bottom: 10px; display: inline-block;">Subject Code: ${info.subjectCode}</span>
+                        <h1 style="font-size: 2.5rem; line-height: 1.2;">${subName}</h1>
+                        <p style="color: var(--text-muted); margin-top: 10px;">Comprehensive study materials, notes, and references.</p>
+                    </div>
+                </div>
+
+                <div style="background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; border: 1px solid var(--border-color);">
+                    <table class="academic-table" style="margin-top: 0;">
+                        <thead>
+                            <tr>
+                                <th style="width: 15%;">Type</th>
+                                <th style="width: 40%;">Description / Unit</th>
+                                <th style="width: 25%;">Details</th>
+                                <th style="width: 20%;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${materials.length > 0 ? materials.map(m => `
+                                <tr>
+                                    <td>
+                                        <span class="badge" style="background: ${getTypeColor(m.type)}; color: white;">${m.type}</span>
+                                    </td>
+                                    <td>
+                                        <div style="font-weight: 600; color: var(--text-main); margin-bottom: 4px;">${m.title}</div>
+                                        <div style="font-size: 0.85rem; color: var(--text-muted);">${m.description || m.unit || 'No description'}</div>
+                                    </td>
+                                    <td>
+                                        <div style="font-size: 0.85rem; color: var(--text-muted);">
+                                            <div style="display:flex; align-items:center; gap:6px;"><ion-icon name="document-outline"></ion-icon> ${m.fileSize || 'Unknown Size'}</div>
+                                            <div style="display:flex; align-items:center; gap:6px;"><ion-icon name="calendar-outline"></ion-icon> ${m.date}</div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <a href="${m.link}" target="_blank" class="btn btn-outline" style="padding: 6px 12px; font-size: 0.85rem; width: 100%; justify-content: center;">
+                                            View PDF
+                                        </a>
+                                    </td>
+                                </tr>
+                            `).join('') : '<tr><td colspan="4" style="text-align:center; padding: 20px;">No materials uploaded yet.</td></tr>'}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function getTypeColor(type) {
+            switch (type) {
+                case 'Notes': return '#003366';
+                case 'Books': return '#e65100';
+                case 'PYQ': return '#0056b3';
+                case 'Syllabus': return '#4caf50';
+                default: return '#596e79';
+            }
+        }
+
+        // --- View: Filter List (Fallback) ---
+        function runFilters() {
+            let materials = Store.getAll();
+            const sVal = document.getElementById('semFilter').value;
+            const tVal = document.getElementById('typeFilter').value;
+
+            if (sVal) materials = materials.filter(m => m.semester == sVal);
+            if (tVal) materials = materials.filter(m => m.type === tVal);
+            if (q) {
+                const query = q.toLowerCase();
+                materials = materials.filter(m =>
+                    m.title.toLowerCase().includes(query) ||
+                    m.subject.toLowerCase().includes(query)
+                );
+                document.getElementById('page-title').innerText = `Search: "${q}"`;
+            } else {
+                document.getElementById('page-title').innerText = "All Materials";
+            }
+
+            renderMaterialList(materials);
+        }
+
+        function renderMaterialList(materials) {
+            if (materials.length === 0) {
+                contentDiv.innerHTML = '<p style="text-align:center; padding: 40px; color:var(--text-muted);">No documents found.</p>';
+                return;
+            }
+            contentDiv.innerHTML = `
+                <div class="material-list">
+                    ${materials.map(m => `
+                        <div class="material-item">
+                            <div class="material-info">
+                                <div class="file-icon">PDF</div>
+                                <div>
+                                    <h4 style="margin-bottom: 4px; color: var(--text-main); font-weight: 600;">${m.title}</h4>
+                                    <div style="font-size: 0.85rem; color: var(--text-muted);">
+                                        ${m.subject} • Sem ${m.semester}
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="${m.link}" target="_blank" class="btn btn-primary" style="padding: 6px 16px; font-size: 0.9rem;">
+                                Download
+                            </a>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+    </script>
+</body>
+
+</html>

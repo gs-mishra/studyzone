@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Workspace - GTU CSE Portal</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@400;700&display=swap"
+        rel="stylesheet">
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <style>
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .login-box {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Login Screen -->
+    <div id="login-screen" class="login-overlay">
+        <div class="login-box">
+            <h2 style="margin-bottom: 20px; color: var(--primary-color);">Admin Workspace</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <input type="text" id="username" class="form-control" placeholder="Username" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="password" class="form-control" placeholder="Password" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">Login to
+                    Dashboard</button>
+                <p id="login-error" style="color: red; margin-top: 10px; font-size: 0.9rem; display: none;">Invalid
+                    credentials</p>
+            </form>
+            <div style="margin-top: 20px;">
+                <a href="index.html" style="font-size: 0.9rem; color: var(--text-muted);">Back to Portal</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="admin-dashboard" style="display: none;">
+        <header class="header">
+            <div class="container">
+                <div class="logo">
+                    <ion-icon name="shield-checkmark-outline"></ion-icon> Administration
+                </div>
+                <div style="display: flex; gap: 15px; align-items: center;">
+                    <div style="text-align: right; line-height: 1.2;">
+                        <span style="font-size: 0.9rem; font-weight: 600; display: block;">System Admin</span>
+                        <span style="font-size: 0.75rem; color: var(--secondary-color);">Logged In</span>
+                    </div>
+                    <button onclick="Auth.logout()" class="btn btn-outline"
+                        style="padding: 6px 14px; font-size: 0.8rem;">Logout</button>
+                    <a href="index.html" target="_blank" class="btn btn-primary"
+                        style="padding: 6px 14px; font-size: 0.8rem;">
+                        View Live Site
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <div class="admin-layout container" style="margin-top: 30px; margin-bottom: 30px;">
+            <aside class="sidebar" style="border-radius: var(--radius-md); height: fit-content;">
+                <div
+                    style="margin-bottom: 20px; font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 1px;">
+                    Menu</div>
+                <div class="sidebar-menu">
+                    <div class="menu-item active" onclick="showTab('dashboard')">
+                        <ion-icon name="grid-outline"></ion-icon> Overview
+                    </div>
+                    <div class="menu-item" onclick="showTab('add-material')">
+                        <ion-icon name="add-circle-outline"></ion-icon> Add New Resource
+                    </div>
+                    <div class="menu-item" onclick="showTab('manage-material')">
+                        <ion-icon name="list-outline"></ion-icon> content Management
+                    </div>
+                </div>
+            </aside>
+
+            <main class="admin-content">
+
+                <!-- Dashboard Tab -->
+                <div id="tab-dashboard">
+                    <h2 class="section-title" style="text-align: left; left: 0; transform: none; margin-bottom: 20px;">
+                        System Overview</h2>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon"><ion-icon name="document-text-outline"></ion-icon></div>
+                            <div class="stat-info">
+                                <h2 id="stat-total">0</h2>
+                                <p>Total Resources</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon"><ion-icon name="library-outline"></ion-icon></div>
+                            <div class="stat-info">
+                                <h2 id="stat-subjects">0</h2>
+                                <p>Active Subjects</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon"><ion-icon name="people-outline"></ion-icon></div>
+                            <div class="stat-info">
+                                <h2 id="stat-active">0</h2>
+                                <p>Semesters Covered</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3 style="margin-bottom: 15px;">Recent Activity</h3>
+                    <div id="admin-recent-list" class="material-list">
+                        <!-- JS populated -->
+                    </div>
+                </div>
+
+                <!-- Add Material Tab -->
+                <div id="tab-add-material" style="display: none;">
+                    <h2 class="section-title" style="text-align: left; left: 0; transform: none; margin-bottom: 20px;">
+                        Upload New Resource</h2>
+                    <div class="card" style="text-align: left; max-width: 800px; cursor: default;">
+                        <form id="add-form">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                                <div class="form-group">
+                                    <label class="form-label">Resource Title</label>
+                                    <input type="text" id="m-title" class="form-control"
+                                        placeholder="e.g. Chapter 1 - Vectors" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Subject Code (GTU)</label>
+                                    <input type="text" id="m-code" class="form-control" placeholder="e.g. 3110014"
+                                        required>
+                                </div>
+                            </div>
+
+                            <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                                <div>
+                                    <label class="form-label">Semester</label>
+                                    <select id="m-sem" class="form-control" required>
+                                        <option value="1">Semester 1</option>
+                                        <option value="2">Semester 2</option>
+                                        <option value="3">Semester 3</option>
+                                        <option value="4">Semester 4</option>
+                                        <option value="5">Semester 5</option>
+                                        <option value="6">Semester 6</option>
+                                        <option value="7">Semester 7</option>
+                                        <option value="8">Semester 8</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="form-label">Type</label>
+                                    <select id="m-type" class="form-control" required>
+                                        <option value="Notes">Notes</option>
+                                        <option value="Books">Books</option>
+                                        <option value="PYQ">PYQ</option>
+                                        <option value="Syllabus">Syllabus</option>
+                                        <option value="Lab Manual">Lab Manual</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Subject Name</label>
+                                <input type="text" id="m-subject" class="form-control" placeholder="e.g. Mathematics-1"
+                                    required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Description / Unit Mapping</label>
+                                <input type="text" id="m-desc" class="form-control"
+                                    placeholder="e.g. Covers Unit 1 & 2 fully." required>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                                <div class="form-group">
+                                    <label class="form-label">File Size (e.g. 2.5 MB)</label>
+                                    <input type="text" id="m-size" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Status</label>
+                                    <select id="m-status" class="form-control">
+                                        <option value="Active">Active</option>
+                                        <option value="Draft">Draft</option>
+                                        <option value="Archived">Archived</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Google Drive Link</label>
+                                <input type="url" id="m-link" class="form-control"
+                                    placeholder="https://drive.google.com/..." required>
+                            </div>
+
+                            <input type="hidden" id="m-id">
+                            <div style="margin-top: 30px;">
+                                <button type="button" class="btn btn-outline"
+                                    style="margin-right: 10px;">Preview</button>
+                                <button type="submit" id="form-u-btn" class="btn btn-primary">Publish Resource</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Manage Material Tab -->
+                <div id="tab-manage-material" style="display: none;">
+                    <h2 class="section-title" style="text-align: left; left: 0; transform: none; margin-bottom: 20px;">
+                        Manage Content</h2>
+                    <div id="manage-list" class="material-list">
+                        <!-- JS populated -->
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <script src="js/data.js"></script>
+    <script src="js/theme.js"></script>
+    <script>
+        // Authentication Check
+        const loginScreen = document.getElementById('login-screen');
+        const dashboard = document.getElementById('admin-dashboard');
+
+        if (Auth.isAuthenticated()) {
+            loginScreen.style.display = 'none';
+            dashboard.style.display = 'block'; // Fixed lint error
+            initDashboard();
+        }
+
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+            if (Auth.login(u, p)) {
+                window.location.reload();
+            } else {
+                document.getElementById('login-error').style.display = 'block';
+            }
+        });
+
+        // Dashboard Logic
+        function initDashboard() {
+            updateStats();
+            renderAdminLists();
+        }
+
+        function updateStats() {
+            const stats = Store.getStats();
+            document.getElementById('stat-total').innerText = stats.totalMaterials;
+            document.getElementById('stat-subjects').innerText = stats.totalSubjects;
+            document.getElementById('stat-active').innerText = stats.activeSemesters;
+        }
+
+        function renderAdminLists() {
+            const materials = Store.getAll();
+            const recent = materials.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            const listHTML = (items) => items.map(m => `
+                <div class="material-item">
+                    <div class="material-info">
+                        <strong>${m.title}</strong>
+                        <span style="font-size:0.8rem; color:#666; margin-left: 10px;">${m.subjectCode || ''}</span>
+                        <span class="badge" style="background: ${m.status === 'Active' ? '#4caf50' : '#ffa000'}; color:white; font-size: 0.6rem; margin-left: 10px;">
+                            ${m.status || 'Active'}
+                        </span>
+                    </div>
+                    <div style="display:flex; gap: 10px;">
+                         <button class="btn btn-outline" style="padding: 4px 10px; font-size: 0.8rem;" onclick="editMaterial('${m.id}')">
+                            Edit
+                        </button>
+                        <button class="btn btn-outline" style="border-color: #ef4444; color: #ef4444; padding: 4px 10px; font-size: 0.8rem;" onclick="deleteMaterial('${m.id}')">
+                            <ion-icon name="trash"></ion-icon>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('admin-recent-list').innerHTML = listHTML(recent.slice(0, 5));
+            document.getElementById('manage-list').innerHTML = listHTML(recent);
+        }
+
+        // Add/Edit Material Form Submit
+        document.getElementById('add-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const id = document.getElementById('m-id').value; // Hidden ID field
+
+            const matData = {
+                title: document.getElementById('m-title').value,
+                semester: document.getElementById('m-sem').value,
+                type: document.getElementById('m-type').value,
+                subject: document.getElementById('m-subject').value,
+                subjectCode: document.getElementById('m-code').value,
+                description: document.getElementById('m-desc').value,
+                status: document.getElementById('m-status').value,
+                fileSize: document.getElementById('m-size').value,
+                link: document.getElementById('m-link').value
+            };
+
+            if (id) {
+                // Update Mode
+                if (confirm("Confirm update details?")) {
+                    Store.update(id, matData);
+                    alert('Resource Updated Successfully!');
+                    resetForm();
+                    showTab('manage-material');
+                }
+            } else {
+                // Create Mode
+                if (confirm("Confirm publishing this resource?")) {
+                    Store.add(matData);
+                    alert('Resource Published Successfully!');
+                    resetForm();
+                }
+            }
+            updateStats();
+            renderAdminLists();
+        });
+
+        // Edit Material Logic
+        window.editMaterial = function (id) {
+            const m = Store.getById(id);
+            if (!m) return alert('Material not found');
+
+            // Populate Form
+            document.getElementById('m-id').value = m.id;
+            document.getElementById('m-title').value = m.title;
+            document.getElementById('m-code').value = m.subjectCode || '';
+            document.getElementById('m-sem').value = m.semester;
+            document.getElementById('m-type').value = m.type;
+            document.getElementById('m-subject').value = m.subject;
+            document.getElementById('m-desc').value = m.description || '';
+            document.getElementById('m-size').value = m.fileSize || '';
+            document.getElementById('m-status').value = m.status || 'Active';
+            document.getElementById('m-link').value = m.link;
+
+            // Change UI text
+            document.getElementById('form-u-btn').innerText = "Update Resource";
+            document.querySelector('#tab-add-material h2').innerText = "Edit Resource";
+
+            showTab('add-material');
+        };
+
+        function resetForm() {
+            document.getElementById('add-form').reset();
+            document.getElementById('m-id').value = '';
+            document.getElementById('form-u-btn').innerText = "Publish Resource";
+            document.querySelector('#tab-add-material h2').innerText = "Upload New Resource";
+        }
+
+        // Delete Material
+        window.deleteMaterial = function (id) {
+            if (confirm('⚠️ PERMANENT ACTION\n\nAre you sure you want to delete this material? This cannot be undone.')) {
+                Store.delete(id);
+                updateStats();
+                renderAdminLists();
+            }
+        };
+
+        // Tabs
+        window.showTab = function (tabName) {
+            ['dashboard', 'add-material', 'manage-material'].forEach(t => {
+                document.getElementById('tab-' + t).style.display = 'none';
+            });
+            document.getElementById('tab-' + tabName).style.display = 'block';
+
+            document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+            if (tabName == 'dashboard') document.querySelectorAll('.menu-item')[0].classList.add('active');
+            if (tabName == 'add-material') {
+                document.querySelectorAll('.menu-item')[1].classList.add('active');
+                // Only reset if we are not editing (check hidden id)
+                const editingId = document.getElementById('m-id').value;
+                if (!editingId && tabName === 'add-material') resetForm();
+            }
+            if (tabName == 'manage-material') document.querySelectorAll('.menu-item')[2].classList.add('active');
+        }
+    </script>
+</body>
+
+</html>
