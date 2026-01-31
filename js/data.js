@@ -157,7 +157,7 @@ const Store = {
 const Auth = {
     login(username, password) {
         // Mock Login - in real app, verify with server
-        if (username === 'admin' && password === 'admin@123') {
+        if (username === 'admin' && password === 'admin123456') {
             localStorage.setItem(DB_KEYS.ADMIN_SESSION, 'true');
             return true;
         }
@@ -182,3 +182,4 @@ const Auth = {
 
 // Initialize on load
 Store.init();
+
