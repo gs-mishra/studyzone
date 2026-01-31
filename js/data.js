@@ -157,7 +157,7 @@ const Store = {
 const Auth = {
     login(username, password) {
         // Mock Login - in real app, verify with server
-        if (username === 'gsmishra' && password === 'mishra@123') {
+        if (username === 'admin' && password === 'admin@123') {
             localStorage.setItem(DB_KEYS.ADMIN_SESSION, 'true');
             return true;
         }
