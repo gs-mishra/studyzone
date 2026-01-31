@@ -29,7 +29,7 @@
             </button>
 
             <nav>
-                <ul class="nav-links">
+                <ul class="nav-links" id="navLinks">
                     <li><a href="index.html" class="nav-link">Home</a></li>
                     <li><a href="admin.html" class="btn btn-primary btn-sm">Admin</a></li>
                 </ul>
@@ -42,7 +42,7 @@
         <!-- Filter Controls (Only shown for general search) -->
         <div id="filter-controls" class="search-wrapper"
             style="display: none; justify-content: space-between; align-items: center; margin-bottom: 30px; max-width: 100%;">
-            <h1 id="page-title" style="font-size: 2rem; margin: 0;">All Materials</h1>
+            <h1 id="page-title" style="font-size: clamp(1.5rem, 5vw, 2rem); margin: 0;">All Materials</h1>
 
             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                 <select id="semFilter" class="form-control" onchange="runFilters()" style="width: auto;">
@@ -84,7 +84,8 @@
     </footer>
 
     <script src="js/data.js"></script>
-    <script src="js/theme.js"></script>
+
+    <script src="js/menu.js"></script>
     <script>
         const contentDiv = document.getElementById('dynamic-content');
         const filterControls = document.getElementById('filter-controls');
@@ -169,7 +170,7 @@
                 <div style="display: flex; justify-content: space-between; align-items: end; margin-bottom: 40px; flex-wrap: wrap; gap: 20px;">
                     <div>
                         <span class="badge badge-new" style="margin-bottom: 10px; display: inline-block;">Subject Code: ${info.subjectCode}</span>
-                        <h1 style="font-size: clamp(1.8rem, 4vw, 2.5rem); line-height: 1.2;">${subName}</h1>
+                        <h1 style="font-size: clamp(1.5rem, 4vw, 2.2rem); line-height: 1.2;">${subName}</h1>
                         <p style="color: var(--text-muted); margin-top: 10px;">Comprehensive study materials, notes, and references.</p>
                     </div>
                 </div>
